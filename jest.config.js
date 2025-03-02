@@ -3,8 +3,12 @@ module.exports = {
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
   testMatch: [
-    '**/__tests__/**/*.ts',
+    '**/__tests__/**/*.test.ts',
     '**/?(*.)+(spec|test|integration.test).ts'
+  ],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/setup.ts'
   ],
   transform: {
     '^.+\\.ts$': 'ts-jest'
@@ -16,6 +20,7 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/**/*.test.ts',
     '!src/**/*.integration.test.ts',
+    '!src/__tests__/setup.ts'
   ],
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
 }; 
