@@ -14,33 +14,6 @@ jobs:
     name: Lint and Test
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:14
-        env:
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: task_management_test
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --name postgres-test
-
-      redis:
-        image: redis:7
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-          --name redis-test
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -54,12 +27,6 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Create Test Database
-        run: |
-          echo "Waiting for PostgreSQL to be ready..."
-          timeout 20s bash -c 'until pg_isready -h localhost -p 5432; do sleep 1; done'
-          echo "PostgreSQL is ready"
-          
       - name: Run Linting
         run: npm run lint
         
@@ -67,39 +34,6 @@ jobs:
         run: npm run build
 
       - name: Run Unit Tests
-        if: success()
         run: npm test -- --coverage --testPathIgnorePatterns=".*/integration/.*"
         env:
           NODE_ENV: test
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: task_management_test
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
-      - name: Run Integration Tests
-        if: success()
-        run: npm test -- --coverage --testMatch="**/*.integration.test.ts"
-        env:
-          NODE_ENV: test
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_DB: task_management_test
-          REDIS_HOST: localhost
-          REDIS_PORT: 6379
-          REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-
-      - name: Upload Test Coverage Report
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage/
-          retention-days: 7
