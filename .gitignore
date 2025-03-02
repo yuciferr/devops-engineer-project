@@ -1,0 +1,107 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
+
+# Uygulama ortam değişkenleri
+.env
+.env.*
+!.env.example
+
+# Derleme çıktıları
+dist/
+build/
+*.tsbuildinfo
+
+# Docker
+.docker/
+docker-compose.override.yml
+*.dockerfile.local
+
+# PostgreSQL
+*.sql
+*.dump
+pgdata/
+
+# Redis
+dump.rdb
+*.rdb
+redis-data/
+
+# Log dosyaları
+logs/
+*.log
+npm-debug.log*
+
+# IDE ve Editör dosyaları
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Test kapsama raporları
+coverage/
+.nyc_output/
+
+# Geçici dosyalar
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Sistem dosyaları
+.DS_Store
+Thumbs.db
+*.bak
+*.cache
+*.pid
+
+# SSL sertifikaları
+*.pem
+*.key
+*.crt
+*.cer
+*.der
+*.priv
+
+# Dağıtım dosyaları
+dist/
+build/
+out/
+
+# Bağımlılık yönetimi
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+
+# Swarm ve Docker secrets
+docker-compose.override.yml
+*.secret
+secrets/
+
+# Monitoring ve logging
+grafana-data/
+prometheus-data/
+
+# Proje dökümantasyonu
+.docs/
+
+# Diğer
+.cache/
+.history/
+*.tgz
+.git-old/
+**/*.backup
+**/*.bak
+**/*.old
