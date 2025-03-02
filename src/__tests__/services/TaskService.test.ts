@@ -1,7 +1,8 @@
 import { TaskService } from '../../services/TaskService';
-import { Task, TaskStatus } from '../../models/Task';
+import { TaskStatus } from '../../models/Task';
 import { AppDataSource } from '../../config/database';
 import redisClient from '../../config/redis';
+import { Repository } from 'typeorm';
 
 jest.mock('../../config/database', () => ({
   AppDataSource: {
@@ -22,7 +23,7 @@ jest.mock('../../utils/logger', () => ({
 
 describe('TaskService', () => {
   let taskService: TaskService;
-  let mockRepository: any;
+  let mockRepository: Repository<any>;
 
   beforeEach(() => {
     mockRepository = {
@@ -31,7 +32,7 @@ describe('TaskService', () => {
       find: jest.fn(),
       findOne: jest.fn(),
       createQueryBuilder: jest.fn()
-    };
+    } as unknown as Repository<any>;
 
     (AppDataSource.getRepository as jest.Mock).mockReturnValue(mockRepository);
     taskService = new TaskService();

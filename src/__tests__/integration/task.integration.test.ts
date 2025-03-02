@@ -2,9 +2,10 @@ import request from 'supertest';
 import { AppDataSource } from '../../config/database';
 import app from '../../app';
 import { Task, TaskStatus } from '../../models/Task';
+import { Repository } from 'typeorm';
 
 describe('Task Integration Tests', () => {
-  let taskRepository: any;
+  let taskRepository: Repository<Task>;
 
   beforeAll(async () => {
     await AppDataSource.initialize();
@@ -108,7 +109,8 @@ describe('Task Integration Tests', () => {
       const deletedTask = await taskRepository.findOne({
         where: { id: task.id }
       });
-      expect(deletedTask.isDeleted).toBe(true);
+      expect(deletedTask).not.toBeNull();
+      expect(deletedTask?.isDeleted).toBe(true);
     });
   });
 
