@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { TaskService } from '../services/TaskService';
 import { TaskStatus } from '../models/Task';
+import { TaskFilterDto } from '../dtos/task.dto';
+import logger from '../utils/logger';
 
 export class TaskController {
   private taskService: TaskService;
@@ -14,16 +16,36 @@ export class TaskController {
       const task = await this.taskService.createTask(req.body);
       res.status(201).json(task);
     } catch (error) {
-      res.status(400).json({ message: 'Failed to create task', error });
+      logger.error('Görev oluşturma hatası', { error });
+      res.status(400).json({ message: 'Görev oluşturulamadı', error });
     }
   }
 
-  async getAllTasks(_req: Request, res: Response): Promise<void> {
+  async getAllTasks(req: Request, res: Response): Promise<void> {
     try {
-      const tasks = await this.taskService.getAllTasks();
-      res.json(tasks);
+      const filterDto: TaskFilterDto = {
+        status: req.query.status as TaskStatus,
+        search: req.query.search as string,
+        sortBy: req.query.sortBy as string,
+        order: req.query.order as 'ASC' | 'DESC',
+        page: req.query.page as string,
+        limit: req.query.limit as string
+      };
+
+      const { tasks, total } = await this.taskService.getAllTasks(filterDto);
+      
+      res.header('X-Total-Count', total.toString());
+      res.json({
+        data: tasks,
+        meta: {
+          total,
+          page: parseInt(filterDto.page || '1'),
+          limit: parseInt(filterDto.limit || '10')
+        }
+      });
     } catch (error) {
-      res.status(500).json({ message: 'Failed to fetch tasks', error });
+      logger.error('Görevleri getirme hatası', { error });
+      res.status(500).json({ message: 'Görevler getirilemedi', error });
     }
   }
 
@@ -31,12 +53,13 @@ export class TaskController {
     try {
       const task = await this.taskService.getTaskById(req.params.id);
       if (!task) {
-        res.status(404).json({ message: 'Task not found' });
+        res.status(404).json({ message: 'Görev bulunamadı' });
         return;
       }
       res.json(task);
     } catch (error) {
-      res.status(500).json({ message: 'Failed to fetch task', error });
+      logger.error('Görev getirme hatası', { error, taskId: req.params.id });
+      res.status(500).json({ message: 'Görev getirilemedi', error });
     }
   }
 
@@ -44,12 +67,13 @@ export class TaskController {
     try {
       const task = await this.taskService.updateTask(req.params.id, req.body);
       if (!task) {
-        res.status(404).json({ message: 'Task not found' });
+        res.status(404).json({ message: 'Görev bulunamadı' });
         return;
       }
       res.json(task);
     } catch (error) {
-      res.status(400).json({ message: 'Failed to update task', error });
+      logger.error('Görev güncelleme hatası', { error, taskId: req.params.id });
+      res.status(400).json({ message: 'Görev güncellenemedi', error });
     }
   }
 
@@ -57,12 +81,13 @@ export class TaskController {
     try {
       const success = await this.taskService.deleteTask(req.params.id);
       if (!success) {
-        res.status(404).json({ message: 'Task not found' });
+        res.status(404).json({ message: 'Görev bulunamadı' });
         return;
       }
       res.status(204).send();
     } catch (error) {
-      res.status(500).json({ message: 'Failed to delete task', error });
+      logger.error('Görev silme hatası', { error, taskId: req.params.id });
+      res.status(500).json({ message: 'Görev silinemedi', error });
     }
   }
 
@@ -70,18 +95,19 @@ export class TaskController {
     try {
       const { status } = req.body;
       if (!Object.values(TaskStatus).includes(status)) {
-        res.status(400).json({ message: 'Invalid status' });
+        res.status(400).json({ message: 'Geçersiz durum' });
         return;
       }
 
       const task = await this.taskService.updateTaskStatus(req.params.id, status);
       if (!task) {
-        res.status(404).json({ message: 'Task not found' });
+        res.status(404).json({ message: 'Görev bulunamadı' });
         return;
       }
       res.json(task);
     } catch (error) {
-      res.status(400).json({ message: 'Failed to update task status', error });
+      logger.error('Görev durumu güncelleme hatası', { error, taskId: req.params.id });
+      res.status(400).json({ message: 'Görev durumu güncellenemedi', error });
     }
   }
 }

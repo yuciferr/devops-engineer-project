@@ -48,8 +48,9 @@ describe('Task Integration Tests', () => {
       const response = await request(app).get('/api/tasks');
 
       expect(response.status).toBe(200);
-      expect(Array.isArray(response.body)).toBe(true);
-      expect(response.body[0].id).toBe(task.id);
+      expect(response.body.data).toBeInstanceOf(Array);
+      expect(response.body.data.length).toBeGreaterThan(0);
+      expect(response.body.data.some((t: Task) => t.id === task.id)).toBe(true);
     });
   });
 
@@ -67,7 +68,7 @@ describe('Task Integration Tests', () => {
     });
 
     it('should return 404 for non-existent task', async () => {
-      const response = await request(app).get('/api/tasks/non-existent-id');
+      const response = await request(app).get('/api/tasks/00000000-0000-0000-0000-000000000000');
       expect(response.status).toBe(404);
     });
   });
