@@ -1,8 +1,6 @@
 name: Monitoring
 
 on:
-  schedule:
-    - cron: '*/15 * * * *'  # Her 15 dakikada bir
   workflow_dispatch:  # Manuel tetikleme için
 
 jobs:
