@@ -2,7 +2,7 @@ import { TaskService } from '../../services/TaskService';
 import { TaskStatus } from '../../models/Task';
 import { AppDataSource } from '../../config/database';
 import redisClient from '../../config/redis';
-import { Repository } from 'typeorm';
+import { Repository, SelectQueryBuilder } from 'typeorm';
 
 jest.mock('../../config/database', () => ({
   AppDataSource: {
@@ -23,16 +23,26 @@ jest.mock('../../utils/logger', () => ({
 
 describe('TaskService', () => {
   let taskService: TaskService;
-  let mockRepository: Repository<any>;
+  let mockRepository: jest.Mocked<Repository<any>>;
+  let mockQueryBuilder: jest.Mocked<SelectQueryBuilder<any>>;
 
   beforeEach(() => {
+    mockQueryBuilder = {
+      where: jest.fn().mockReturnThis(),
+      andWhere: jest.fn().mockReturnThis(),
+      orderBy: jest.fn().mockReturnThis(),
+      skip: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      getManyAndCount: jest.fn()
+    } as unknown as jest.Mocked<SelectQueryBuilder<any>>;
+
     mockRepository = {
       create: jest.fn(),
       save: jest.fn(),
       find: jest.fn(),
       findOne: jest.fn(),
-      createQueryBuilder: jest.fn()
-    } as unknown as Repository<any>;
+      createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder)
+    } as unknown as jest.Mocked<Repository<any>>;
 
     (AppDataSource.getRepository as jest.Mock).mockReturnValue(mockRepository);
     taskService = new TaskService();
@@ -74,15 +84,7 @@ describe('TaskService', () => {
 
     it('should fetch from database and cache if no cache exists', async () => {
       (redisClient.get as jest.Mock).mockResolvedValue(null);
-      const queryBuilder = {
-        where: jest.fn().mockReturnThis(),
-        andWhere: jest.fn().mockReturnThis(),
-        orderBy: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        take: jest.fn().mockReturnThis(),
-        getManyAndCount: jest.fn().mockResolvedValue([mockTasks, mockTasks.length])
-      };
-      mockRepository.createQueryBuilder.mockReturnValue(queryBuilder);
+      mockQueryBuilder.getManyAndCount.mockResolvedValue([mockTasks, mockTasks.length]);
 
       const result = await taskService.getAllTasks({});
 
