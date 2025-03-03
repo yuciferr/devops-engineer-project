@@ -14,8 +14,31 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  lint:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Check Code Format
+        run: npm run format:check
+
+      - name: Run Linter
+        run: npm run lint
+
   test:
     name: Build and Test
+    needs: lint
     runs-on: ubuntu-latest
 
     steps:
