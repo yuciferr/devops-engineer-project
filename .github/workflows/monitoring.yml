@@ -1,0 +1,86 @@
+name: Monitoring
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # Her 15 dakikada bir
+  workflow_dispatch:  # Manuel tetikleme için
+
+jobs:
+  health-check:
+    name: Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check Production Health
+        uses: jtalk/url-health-check-action@v3
+        with:
+          url: https://taskmanagement.com/health
+          max-attempts: 3
+          retry-delay: 5s
+          
+      - name: Check Staging Health
+        uses: jtalk/url-health-check-action@v3
+        with:
+          url: https://staging.taskmanagement.com/health
+          max-attempts: 3
+          retry-delay: 5s
+
+  resource-monitoring-production:
+    name: Production Resource Monitoring
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.PROD_KNOWN_HOSTS }}
+          
+      - name: Check Production Resources
+        run: |
+          ssh ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "
+            echo '=== Production Docker Service Status ==='
+            docker service ls
+            
+            echo '=== Production Node Status ==='
+            docker node ls
+            
+            echo '=== Production Service Logs (Last 1 hour) ==='
+            docker service logs --since 1h task-management_app
+            
+            echo '=== Production Resource Usage ==='
+            docker stats --no-stream
+          "
+
+  resource-monitoring-staging:
+    name: Staging Resource Monitoring
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        
+      - name: Install SSH Key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
+          known_hosts: ${{ secrets.STAGING_KNOWN_HOSTS }}
+          
+      - name: Check Staging Resources
+        run: |
+          ssh ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} "
+            echo '=== Staging Docker Service Status ==='
+            docker service ls
+            
+            echo '=== Staging Node Status ==='
+            docker node ls
+            
+            echo '=== Staging Service Logs (Last 1 hour) ==='
+            docker service logs --since 1h task-management-staging_app
+            
+            echo '=== Staging Resource Usage ==='
+            docker stats --no-stream
+          " 
