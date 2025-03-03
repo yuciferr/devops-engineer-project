@@ -29,14 +29,14 @@ export class TaskService {
     return await this.taskRepository.save(task);
   }
 
-  async getAllTasks(filterDto: TaskFilterDto): Promise<{ tasks: Task[], total: number }> {
+  async getAllTasks(filterDto: TaskFilterDto): Promise<{ tasks: Task[]; total: number }> {
     const {
       status,
       search,
       sortBy = 'createdAt',
       order = 'DESC',
       page = '1',
-      limit = '10'
+      limit = '10',
     } = filterDto;
 
     const pageNumber = parseInt(page);
@@ -51,7 +51,8 @@ export class TaskService {
       return { tasks: cachedTasks, total: cachedTasks.length };
     }
 
-    const queryBuilder = this.taskRepository.createQueryBuilder('task')
+    const queryBuilder = this.taskRepository
+      .createQueryBuilder('task')
       .where('task.isDeleted = :isDeleted', { isDeleted: false });
 
     if (status) {
@@ -65,14 +66,11 @@ export class TaskService {
       );
     }
 
-    queryBuilder
-      .orderBy(`task.${sortBy}`, order)
-      .skip(skip)
-      .take(limitNumber);
+    queryBuilder.orderBy(`task.${sortBy}`, order).skip(skip).take(limitNumber);
 
     const [tasks, total] = await queryBuilder.getManyAndCount();
     await this.setCachedTasks(cacheKey, tasks);
-    
+
     logger.debug('Görevler veritabanından alındı', { total });
     return { tasks, total };
   }
@@ -87,7 +85,7 @@ export class TaskService {
     }
 
     const task = await this.taskRepository.findOne({
-      where: { id, isDeleted: false }
+      where: { id, isDeleted: false },
     });
 
     if (task) {
@@ -104,7 +102,7 @@ export class TaskService {
     Object.assign(task, updateTaskDto);
     await redisClient.del(`task:${id}`);
     await redisClient.del('tasks:all');
-    
+
     logger.info('Görev güncellendi', { taskId: id });
     return await this.taskRepository.save(task);
   }
@@ -117,7 +115,7 @@ export class TaskService {
     await this.taskRepository.save(task);
     await redisClient.del(`task:${id}`);
     await redisClient.del('tasks:all');
-    
+
     logger.info('Görev silindi', { taskId: id });
     return true;
   }
@@ -129,7 +127,7 @@ export class TaskService {
     task.status = status;
     await redisClient.del(`task:${id}`);
     await redisClient.del('tasks:all');
-    
+
     logger.info('Görev durumu güncellendi', { taskId: id, status });
     return await this.taskRepository.save(task);
   }

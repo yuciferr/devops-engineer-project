@@ -14,12 +14,12 @@ afterEach(async () => {
 afterAll(async () => {
   // Redis bağlantısını kapat
   await redisClient.quit();
-  
+
   // PostgreSQL bağlantısını kapat
   if (AppDataSource.isInitialized) {
     await AppDataSource.destroy();
   }
-  
+
   // Bağlantıların tamamen kapanması için bekle
-  await new Promise(resolve => setTimeout(resolve, 500));
-}); 
+  await new Promise((resolve) => setTimeout(resolve, 500));
+});

@@ -29,19 +29,19 @@ export class TaskController {
         sortBy: req.query.sortBy as string,
         order: req.query.order as 'ASC' | 'DESC',
         page: req.query.page as string,
-        limit: req.query.limit as string
+        limit: req.query.limit as string,
       };
 
       const { tasks, total } = await this.taskService.getAllTasks(filterDto);
-      
+
       res.header('X-Total-Count', total.toString());
       res.json({
         data: tasks,
         meta: {
           total,
           page: parseInt(filterDto.page || '1'),
-          limit: parseInt(filterDto.limit || '10')
-        }
+          limit: parseInt(filterDto.limit || '10'),
+        },
       });
     } catch (error) {
       logger.error('Görevleri getirme hatası', { error });

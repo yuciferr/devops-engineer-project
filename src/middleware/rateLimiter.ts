@@ -13,13 +13,18 @@ export const apiLimiter = rateLimit({
   max: 100, // IP başına limit
   message: {
     status: 429,
-    message: 'Çok fazla istek gönderildi, lütfen daha sonra tekrar deneyin.'
+    message: 'Çok fazla istek gönderildi, lütfen daha sonra tekrar deneyin.',
   },
-  handler: (req: Request, res: Response, _next: NextFunction, options: { statusCode: number; message: string }) => {
+  handler: (
+    req: Request,
+    res: Response,
+    _next: NextFunction,
+    options: { statusCode: number; message: string }
+  ) => {
     logger.warn('Rate limit exceeded', {
       ip: req.ip,
-      path: req.path
+      path: req.path,
     });
     res.status(options.statusCode).json(options.message);
-  }
-}); 
+  },
+});

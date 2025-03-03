@@ -27,7 +27,7 @@ app.get('/health', (_req, res) => {
     message: 'OK',
     timestamp: Date.now(),
     database: AppDataSource.isInitialized ? 'Connected' : 'Disconnected',
-    redis: redisClient.status === 'ready' ? 'Connected' : 'Disconnected'
+    redis: redisClient.status === 'ready' ? 'Connected' : 'Disconnected',
   };
   res.json(healthcheck);
 });
@@ -40,7 +40,7 @@ app.use((err: Error, req: express.Request, res: express.Response, _next: express
   logger.error('Uygulama hatası', { error: err });
   res.status(500).json({
     message: 'Bir hata oluştu',
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error'
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal Server Error',
   });
 });
 

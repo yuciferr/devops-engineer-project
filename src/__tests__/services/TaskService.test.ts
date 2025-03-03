@@ -6,19 +6,19 @@ import { Repository, SelectQueryBuilder } from 'typeorm';
 
 jest.mock('../../config/database', () => ({
   AppDataSource: {
-    getRepository: jest.fn()
-  }
+    getRepository: jest.fn(),
+  },
 }));
 
 jest.mock('../../config/redis', () => ({
   get: jest.fn(),
   setex: jest.fn(),
-  del: jest.fn()
+  del: jest.fn(),
 }));
 
 jest.mock('../../utils/logger', () => ({
   info: jest.fn(),
-  debug: jest.fn()
+  debug: jest.fn(),
 }));
 
 describe('TaskService', () => {
@@ -33,7 +33,7 @@ describe('TaskService', () => {
       orderBy: jest.fn().mockReturnThis(),
       skip: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn()
+      getManyAndCount: jest.fn(),
     } as unknown as jest.Mocked<SelectQueryBuilder<any>>;
 
     mockRepository = {
@@ -41,7 +41,7 @@ describe('TaskService', () => {
       save: jest.fn(),
       find: jest.fn(),
       findOne: jest.fn(),
-      createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder)
+      createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
     } as unknown as jest.Mocked<Repository<any>>;
 
     (AppDataSource.getRepository as jest.Mock).mockReturnValue(mockRepository);
@@ -52,7 +52,7 @@ describe('TaskService', () => {
     it('should create task and invalidate cache', async () => {
       const taskData = {
         title: 'Test Task',
-        description: 'Test Description'
+        description: 'Test Description',
       };
 
       const savedTask = { id: '1', ...taskData };
@@ -69,7 +69,7 @@ describe('TaskService', () => {
   describe('getAllTasks with caching', () => {
     const mockTasks = [
       { id: '1', title: 'Task 1' },
-      { id: '2', title: 'Task 2' }
+      { id: '2', title: 'Task 2' },
     ];
 
     it('should return cached tasks if available', async () => {
@@ -99,7 +99,7 @@ describe('TaskService', () => {
       const task = {
         id: taskId,
         title: 'Test Task',
-        status: TaskStatus.TODO
+        status: TaskStatus.TODO,
       };
       const updatedTask = { ...task, status: TaskStatus.IN_PROGRESS };
 
@@ -113,4 +113,4 @@ describe('TaskService', () => {
       expect(redisClient.del).toHaveBeenCalledWith('tasks:all');
     });
   });
-}); 
+});

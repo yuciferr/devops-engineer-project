@@ -15,8 +15,8 @@ export const validateDto = <T extends object>(dtoClass: ClassConstructor<T>) => 
         message: 'Validation failed',
         errors: errors.map((error: ValidationError) => ({
           property: error.property,
-          constraints: error.constraints
-        }))
+          constraints: error.constraints,
+        })),
       });
       return;
     }
@@ -24,4 +24,4 @@ export const validateDto = <T extends object>(dtoClass: ClassConstructor<T>) => 
     req.body = dtoObject;
     next();
   };
-}; 
+};

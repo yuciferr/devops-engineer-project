@@ -85,4 +85,4 @@ describe('Task DTOs', () => {
       expect(errors[0].property).toBe('order');
     });
   });
-}); 
+});

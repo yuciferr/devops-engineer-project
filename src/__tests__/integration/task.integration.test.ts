@@ -24,12 +24,10 @@ describe('Task Integration Tests', () => {
     it('should create a new task', async () => {
       const taskData = {
         title: 'Test Task',
-        description: 'Test Description'
+        description: 'Test Description',
       };
 
-      const response = await request(app)
-        .post('/api/tasks')
-        .send(taskData);
+      const response = await request(app).post('/api/tasks').send(taskData);
 
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('id');
@@ -43,7 +41,7 @@ describe('Task Integration Tests', () => {
     it('should return all tasks', async () => {
       const task = await taskRepository.save({
         title: 'Test Task',
-        description: 'Test Description'
+        description: 'Test Description',
       });
 
       const response = await request(app).get('/api/tasks');
@@ -59,7 +57,7 @@ describe('Task Integration Tests', () => {
     it('should return a task by id', async () => {
       const task = await taskRepository.save({
         title: 'Test Task',
-        description: 'Test Description'
+        description: 'Test Description',
       });
 
       const response = await request(app).get(`/api/tasks/${task.id}`);
@@ -78,17 +76,15 @@ describe('Task Integration Tests', () => {
     it('should update a task', async () => {
       const task = await taskRepository.save({
         title: 'Test Task',
-        description: 'Test Description'
+        description: 'Test Description',
       });
 
       const updateData = {
         title: 'Updated Task',
-        description: 'Updated Description'
+        description: 'Updated Description',
       };
 
-      const response = await request(app)
-        .put(`/api/tasks/${task.id}`)
-        .send(updateData);
+      const response = await request(app).put(`/api/tasks/${task.id}`).send(updateData);
 
       expect(response.status).toBe(200);
       expect(response.body.title).toBe(updateData.title);
@@ -100,14 +96,14 @@ describe('Task Integration Tests', () => {
     it('should soft delete a task', async () => {
       const task = await taskRepository.save({
         title: 'Test Task',
-        description: 'Test Description'
+        description: 'Test Description',
       });
 
       const response = await request(app).delete(`/api/tasks/${task.id}`);
       expect(response.status).toBe(204);
 
       const deletedTask = await taskRepository.findOne({
-        where: { id: task.id }
+        where: { id: task.id },
       });
       expect(deletedTask).not.toBeNull();
       expect(deletedTask?.isDeleted).toBe(true);
@@ -118,7 +114,7 @@ describe('Task Integration Tests', () => {
     it('should update task status', async () => {
       const task = await taskRepository.save({
         title: 'Test Task',
-        description: 'Test Description'
+        description: 'Test Description',
       });
 
       const response = await request(app)
@@ -132,7 +128,7 @@ describe('Task Integration Tests', () => {
     it('should return 400 for invalid status', async () => {
       const task = await taskRepository.save({
         title: 'Test Task',
-        description: 'Test Description'
+        description: 'Test Description',
       });
 
       const response = await request(app)
@@ -142,4 +138,4 @@ describe('Task Integration Tests', () => {
       expect(response.status).toBe(400);
     });
   });
-}); 
+});

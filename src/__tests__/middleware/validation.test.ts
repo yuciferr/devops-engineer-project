@@ -9,11 +9,11 @@ describe('Validation Middleware', () => {
 
   beforeEach(() => {
     mockRequest = {
-      body: {}
+      body: {},
     };
     mockResponse = {
       status: jest.fn().mockReturnThis(),
-      json: jest.fn()
+      json: jest.fn(),
     };
     nextFunction = jest.fn();
   });
@@ -21,7 +21,7 @@ describe('Validation Middleware', () => {
   it('should pass validation for valid data', async () => {
     mockRequest.body = {
       title: 'Test Task',
-      description: 'Test Description'
+      description: 'Test Description',
     };
 
     const middleware = validateDto(CreateTaskDto);
@@ -34,7 +34,7 @@ describe('Validation Middleware', () => {
   it('should fail validation for invalid data', async () => {
     mockRequest.body = {
       title: '', // Boş başlık geçersizdir
-      description: 'Test Description'
+      description: 'Test Description',
     };
 
     const middleware = validateDto(CreateTaskDto);
@@ -44,8 +44,8 @@ describe('Validation Middleware', () => {
     expect(mockResponse.status).toHaveBeenCalledWith(400);
     expect(mockResponse.json).toHaveBeenCalledWith(
       expect.objectContaining({
-        message: 'Validation failed'
+        message: 'Validation failed',
       })
     );
   });
-}); 
+});

@@ -13,7 +13,7 @@ const redisClient = new Redis({
   maxRetriesPerRequest: 3, // Her istek için maksimum yeniden deneme sayısı
   connectTimeout: 10000, // Bağlantı zaman aşımı (10 saniye)
   enableReadyCheck: true,
-  showFriendlyErrorStack: true
+  showFriendlyErrorStack: true,
 });
 
 redisClient.on('error', (error) => {
