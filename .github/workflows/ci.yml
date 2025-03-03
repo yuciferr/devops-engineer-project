@@ -61,7 +61,7 @@ jobs:
         run: npm run build
 
       - name: Run Unit Tests
-        run: npm test -- --coverage --testPathIgnorePatterns=".*/integration/.*"
+        run: npm test -- --coverage --testPathIgnorePatterns=".*/integration/.*" --forceExit --detectOpenHandles
         env:
           NODE_ENV: test
           POSTGRES_HOST: localhost
