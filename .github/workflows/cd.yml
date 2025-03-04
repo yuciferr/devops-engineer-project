@@ -67,6 +67,11 @@ jobs:
         with:
           key: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.PROD_KNOWN_HOSTS }}
+          if_key_exists: replace
+          config: | 
+            Host *
+              StrictHostKeyChecking accept-new
+              UserKnownHostsFile=/dev/null
           
       - name: Install SSH Key for Staging
         if: github.ref == 'refs/heads/develop'
@@ -74,6 +79,11 @@ jobs:
         with:
           key: ${{ secrets.STAGING_SSH_PRIVATE_KEY }}
           known_hosts: ${{ secrets.STAGING_KNOWN_HOSTS }}
+          if_key_exists: replace
+          config: | 
+            Host *
+              StrictHostKeyChecking accept-new
+              UserKnownHostsFile=/dev/null
           
       - name: Deploy to Production
         if: github.ref == 'refs/heads/main'
@@ -86,8 +96,20 @@ jobs:
           COMPOSE_FILE: 'docker-compose.prod.yml'
           STACK_NAME: 'task-management'
         run: |
-          scp ${COMPOSE_FILE} ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:~/
-          scp .env.production ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:~/.env
+          echo "Testing SSH connection to production..."
+          ssh -v ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "echo 'SSH connection to production successful'"
+          
+          echo "Copying deployment files..."
+          scp -v ${COMPOSE_FILE} ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:~/
+          scp -v .env.production ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }}:~/.env
+          
+          echo "Creating Docker secrets..."
+          ssh ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "
+            echo '$POSTGRES_PASSWORD' | docker secret create postgres_password -
+            echo '$REDIS_PASSWORD' | docker secret create redis_password -
+          "
+          
+          echo "Deploying stack..."
           ssh ${{ secrets.PROD_SSH_USER }}@${{ secrets.PROD_SSH_HOST }} "
             export POSTGRES_USER='$POSTGRES_USER'
             export POSTGRES_PASSWORD='$POSTGRES_PASSWORD'
@@ -108,8 +130,20 @@ jobs:
           COMPOSE_FILE: 'docker-compose.staging.yml'
           STACK_NAME: 'task-management-staging'
         run: |
-          scp ${COMPOSE_FILE} ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:~/
-          scp .env.staging ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:~/.env
+          echo "Testing SSH connection to staging..."
+          ssh -v ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} "echo 'SSH connection to staging successful'"
+          
+          echo "Copying deployment files..."
+          scp -v ${COMPOSE_FILE} ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:~/
+          scp -v .env.staging ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }}:~/.env
+          
+          echo "Creating Docker secrets..."
+          ssh ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} "
+            echo '$POSTGRES_PASSWORD' | docker secret create postgres_password -
+            echo '$REDIS_PASSWORD' | docker secret create redis_password -
+          "
+          
+          echo "Deploying stack..."
           ssh ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} "
             export POSTGRES_USER='$POSTGRES_USER'
             export POSTGRES_PASSWORD='$POSTGRES_PASSWORD'
