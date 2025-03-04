@@ -9,6 +9,8 @@ yarn.lock
 .env
 .env.*
 !.env.example
+!.env.staging
+!.env.production
 
 # Derleme çıktıları
 dist/
@@ -63,7 +65,8 @@ Thumbs.db
 *.cache
 *.pid
 
-# SSL sertifikaları
+# SSL sertifikaları ve hassas nginx dosyaları
+nginx/**/certs/
 *.pem
 *.key
 *.crt

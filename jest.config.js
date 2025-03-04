@@ -23,4 +23,7 @@ module.exports = {
     '!src/__tests__/setup.ts'
   ],
   setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  maxWorkers: 1,
+  forceExit: true,
+  detectOpenHandles: true
 }; 
