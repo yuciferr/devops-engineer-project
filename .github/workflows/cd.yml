@@ -139,6 +139,7 @@ jobs:
           
           echo "Creating Docker secrets..."
           ssh ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} "
+            docker secret rm postgres_password redis_password || true
             echo '$POSTGRES_PASSWORD' | docker secret create postgres_password -
             echo '$REDIS_PASSWORD' | docker secret create redis_password -
           "
