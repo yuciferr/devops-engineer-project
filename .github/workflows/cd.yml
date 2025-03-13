@@ -143,6 +143,11 @@ jobs:
             echo '$REDIS_PASSWORD' | docker secret create redis_password -
           "
           
+          echo "Login to GitHub Container Registry on EC2..."
+          ssh ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} "
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          "
+          
           echo "Deploying stack..."
           ssh ${{ secrets.STAGING_SSH_USER }}@${{ secrets.STAGING_SSH_HOST }} "
             export POSTGRES_USER='$POSTGRES_USER'
